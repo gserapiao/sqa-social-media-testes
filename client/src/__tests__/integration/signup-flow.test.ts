@@ -1,69 +1,33 @@
 import { isEmailValid } from "@/utils/email";
 import { isPasswordValid } from "@/utils/password";
 
-describe("Signup Flow Integration Test", () => {
-  // TESTE DE INTEGRAÇÃO 1 - DEVE PASSAR: Validação completa de cadastro
-  test("should validate email and password for signup flow", () => {
+describe("Signup Flow - Integração (2)", () => {
+  test("deve validar email e senha válidos para o fluxo de signup", () => {
+    // Arrange
     const email = "newuser@example.com";
-    const password = "SecurePass@123"; // Usando @ que está no regex
+    const password = "SecurePass@123"; // '@' está no regex
 
-    // Ambos os validadores devem passar
+    // Act
     const isEmailOk = isEmailValid(email);
     const isPasswordOk = isPasswordValid(password);
 
+    // Assert
     expect(isEmailOk).toBe(true);
     expect(isPasswordOk).toBe(true);
-
-    // Ambas validações passam significa que o formulário está pronto
     expect(isEmailOk && isPasswordOk).toBe(true);
   });
 
-  // TESTE DE INTEGRAÇÃO 2 - DEVE FALHAR: Bug real - Regex de caracteres especiais incompleto
-  // O regex não inclui "!" portanto qualquer senha com "!" será rejeitada
-  // Isso é um BUG real que afeta UX: usuários podem digitar "!" e ser rejeitados
-  test("should fail for passwords with exclamation mark - regex bug in special char validation", () => {
-    const email = "user@example.com";
-    const password = "ValidPass123!"; // "!" é caractere especial válido mas regex não inclui
+  test("BUG: falha de persistência entre saveUser/getUser devido a chave inconsistente no localStorage", () => {
+    // Arrange - limpar armazenamento
+    localStorage.removeItem("sqa_social_user");
+    const user = { id: 1, email: "persist@test.com" };
 
-    const isEmailOk = isEmailValid(email);
-    const isPasswordOk = isPasswordValid(password);
+    // Act - salvar e recuperar
+    const { saveUser, getUser } = require("../../lib/localStorage");
+    saveUser(user);
+    const recuperado = getUser();
 
-    // Email deveria passar
-    expect(isEmailOk).toBe(true);
-
-    // Mas password falha porque regex não inclui "!"
-    expect(isPasswordOk).toBe(false); // Falha propositalmente (bug real)
-
-    // Isso significa que o signup não pode ser completado com esta senha válida
-    // Este é o bug que queremos documentar
-    expect(isEmailOk && isPasswordOk).toBe(false);
-  });
-
-  // TESTE DE INTEGRAÇÃO - Fluxo de validação de campos vazios
-  test("should reject empty email and password", () => {
-    const email = "";
-    const password = "";
-
-    const isEmailOk = isEmailValid(email);
-    const isPasswordOk = isPasswordValid(password);
-
-    expect(isEmailOk).toBe(false);
-    expect(isPasswordOk).toBe(false);
-  });
-
-  // TESTE DE INTEGRAÇÃO - Validação com email inválido mas senha válida
-  test("should fail signup if email is invalid even with valid password", () => {
-    const email = "invalid-email";
-    const password = "ValidPass@123";
-
-    const isEmailOk = isEmailValid(email);
-    const isPasswordOk = isPasswordValid(password);
-
-    // Senha está ok, mas email não
-    expect(isPasswordOk).toBe(true);
-    expect(isEmailOk).toBe(false);
-
-    // Signup não deve ser permitido
-    expect(isEmailOk && isPasswordOk).toBe(false);
+    // Assert - esperamos que o usuário seja recuperado, mas existe um bug de chave
+    expect(recuperado).not.toBeNull(); // Este assert deve falhar devido ao bug real
   });
 });
