@@ -17,8 +17,7 @@ describe("Signup Flow - Integração (2)", () => {
     expect(isEmailOk && isPasswordOk).toBe(true);
   });
 
-  test("BUG: falha de persistência entre saveUser/getUser devido a chave inconsistente no localStorage", () => {
-    // Arrange - limpar armazenamento
+  test("Falha de persistência entre saveUser/getUser devido a chave inconsistente no localStorage", () => {
     localStorage.removeItem("sqa_social_user");
     const user = { id: 1, email: "persist@test.com" };
 
@@ -27,7 +26,7 @@ describe("Signup Flow - Integração (2)", () => {
     saveUser(user);
     const recuperado = getUser();
 
-    // Assert - esperamos que o usuário seja recuperado, mas existe um bug de chave
-    expect(recuperado).not.toBeNull(); // Este assert deve falhar devido ao bug real
+    // Assert - espera que o usuário seja recuperado, mas existe um bug de chave
+    expect(recuperado).not.toBeNull();
   });
 });

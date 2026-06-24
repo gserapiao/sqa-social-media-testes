@@ -30,7 +30,7 @@ class UserServiceTest {
   @Test
   @DisplayName("Deve aceitar e-mail válido com usuário e domínio")
   void deveAceitarEmailValidoComUsuarioEDominio() {
-    // Given - usuário informou um e-mail com usuário e domínio
+    // Given
     String emailValido = "user@example.com";
 
     // When - validar o e-mail
@@ -90,7 +90,7 @@ class UserServiceTest {
   }
 
   @Test
-  @DisplayName("BUG: Deve rejeitar e-mail sem domínio após o @")
+  @DisplayName("Deve rejeitar e-mail sem domínio após o @")
   void deveRejeitarEmailSemDominioAposArroba() {
     // Given - Dado que o usuário informou um e-mail inválido
     String emailInvalido = "invalid@";
