@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: sqa_social_media
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run backend tests
+        working-directory: api
+        run: |
+          chmod +x ./mvnw
+          ./mvnw test
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Run frontend tests
+        working-directory: client
+        run: npm test -- --watchAll=false
+
+      - name: Install Playwright test dependencies
+        working-directory: tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend
+        working-directory: api
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/sqa_social_media
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+        run: |
+          nohup ./mvnw spring-boot:run > ../backend.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8080/posts?limit=1 > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat ../backend.log
+          exit 1
+
+      - name: Start frontend
+        working-directory: client
+        env:
+          NEXT_PUBLIC_BASE_URL: http://localhost:8080
+        run: |
+          nohup npm run dev > ../frontend.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://localhost:3000 > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat ../frontend.log
+          exit 1
+
+      - name: Run Playwright tests
+        working-directory: tests
+        run: npm test

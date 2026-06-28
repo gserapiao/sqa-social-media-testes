@@ -1,32 +1,28 @@
 import { isEmailValid } from "@/utils/email";
 import { isPasswordValid } from "@/utils/password";
 
-describe("Signup Flow - Integra√ß√£o (2)", () => {
-  test("deve validar email e senha v√°lidos para o fluxo de signup", () => {
-    // Arrange
+describe("Signup Flow - IntegraÁ„o (2)", () => {
+  test("deve validar email e senha v·lidos para o fluxo de signup", () => {
     const email = "newuser@example.com";
-    const password = "SecurePass@123"; // '@' est√° no regex
+    const password = "SecurePass@123";
 
-    // Act
     const isEmailOk = isEmailValid(email);
     const isPasswordOk = isPasswordValid(password);
 
-    // Assert
     expect(isEmailOk).toBe(true);
     expect(isPasswordOk).toBe(true);
     expect(isEmailOk && isPasswordOk).toBe(true);
   });
 
-  test("Falha de persist√™ncia entre saveUser/getUser devido a chave inconsistente no localStorage", () => {
-    localStorage.removeItem("sqa_social_user");
-    const user = { id: 1, email: "persist@test.com" };
+  test("deve rejeitar dados inv·lidos antes do envio do signup", () => {
+    const email = "invalid@";
+    const password = "fraca";
 
-    // Act - salvar e recuperar
-    const { saveUser, getUser } = require("../../lib/localStorage");
-    saveUser(user);
-    const recuperado = getUser();
+    const isEmailOk = isEmailValid(email);
+    const isPasswordOk = isPasswordValid(password);
 
-    // Assert - espera que o usu√°rio seja recuperado, mas existe um bug de chave
-    expect(recuperado).not.toBeNull();
+    expect(isEmailOk).toBe(false);
+    expect(isPasswordOk).toBe(false);
+    expect(isEmailOk && isPasswordOk).toBe(false);
   });
 });

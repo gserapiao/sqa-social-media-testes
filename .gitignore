@@ -1,0 +1,5 @@
+client/coverage/
+tests/test-results/
+tests/playwright-report/
+.github/java-upgrade/
+.github/modernize/
