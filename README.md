@@ -47,3 +47,46 @@ NEXT_PUBLIC_BASE_URL=http://localhost:8080
 - [README da API](api/README.md)
 - [README do Frontend](client/README.md)
 - [DummyJSON API Docs](https://dummyjson.com/docs)
+
+## Atividade - CI e Likes/Dislikes
+
+Foi criada uma pipeline de CI com GitHub Actions em `.github/workflows/ci.yml`. Ela roda em Pull Requests para a branch `main` e executa os testes do backend, do frontend e da pasta `tests` com Playwright.
+
+A Home tambem exibe as reacoes dos posts seguindo a estrutura da DummyJSON:
+
+```ts
+reactions: {
+  likes: number;
+  dislikes: number;
+}
+```
+
+Comandos para rodar localmente:
+
+Backend:
+
+```bash
+cd api
+./mvnw test
+```
+
+No Windows:
+
+```bash
+cd api
+.\mvnw.cmd test
+```
+
+Frontend:
+
+```bash
+cd client
+npm test -- --watchAll=false
+```
+
+Playwright:
+
+```bash
+cd tests
+npm test
+```
